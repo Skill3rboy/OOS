@@ -1,21 +1,24 @@
 package bank;
 
+/**
+ * Main Transaction-class
+ */
 public abstract class Transaction implements CalculateBill {
 
     /**
-     * Datum im Format DD.MM.YYYY
+     * Date in Format DD.MM.YYYY
      */
     protected String date;
     /**
-     * Geldmenge der Überweisung
+     * Amount of Money
      */
     protected double amount;
     /**
-     * Beschreibung des Vorgangs
+     * Description of the Action
      */
     protected String description;
 
-    /**
+    /**Normal Constructor
      * @param date
      * @param amount
      * @param description
@@ -27,7 +30,7 @@ public abstract class Transaction implements CalculateBill {
     }
 
     /**
-     * copy Konstructor
+     * copy Constructor
      *
      * @param transaction
      */
@@ -45,8 +48,8 @@ public abstract class Transaction implements CalculateBill {
         return this.date;
     }
 
-    /**
-     * @param dateN setter
+    /**Setter for Date
+     * @param dateN
      */
     public void setDate(String dateN) {
         this.date = dateN;
@@ -59,8 +62,8 @@ public abstract class Transaction implements CalculateBill {
         return this.amount;
     }
 
-    /**
-     * @param amountN setter
+    /** Setter for Amount
+     * @param amountN
      */
     public void setAmount(double amountN) {
         this.amount = amountN;
@@ -73,24 +76,24 @@ public abstract class Transaction implements CalculateBill {
         return this.description;
     }
 
-    /**
-     * @param descriptionN setter
+    /**Setter for Description
+     * @param descriptionN
      */
     public void setDescription(String descriptionN) {
         this.description = descriptionN;
     }
 
     /**
-     * @return Attribute der Transaction
+     * @return Attributes from Transaction
      */
     @Override
     public String toString() {
-        return "Date: " + getDate() + ", amount: " + calculate() + ",  Description: " + getDescription();
+        return "Date: " + getDate() + ", Amount: " + calculate() + ",  Description: " + getDescription();
     }
 
-    /**
-     * @param object Welches Verglichen wird
-     * @return boolean, True wenn es gleich its
+    /** Check if the object is the same
+     * @param object
+     * @return True if equal
      */
     @Override
     public boolean equals(Object object) {

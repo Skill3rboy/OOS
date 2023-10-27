@@ -1,39 +1,42 @@
 package bank;
 
+/**
+ * Transfer Class is a subclass from Transaction and uses CalculateBill
+ */
 public class Transfer extends Transaction implements CalculateBill {
 
 
     /**
-     * Name des Senders
+     * Name off the Sender
      */
     private String sender;
     /**
-     * Name des Empfängers
+     * Name off the Recipient
      */
     private String recipient;
 
 
     /**
-     * Konstrukor mit den Transfer Attributen
+     * Standard Transaction-constructor with Transfer Attributes
      *
-     * @param dateN
-     * @param amountN
-     * @param descriptionN
-     * @param senderN
-     * @param recipientN
+     * @param date
+     * @param amount
+     * @param description
+     * @param sender
+     * @param recipient
      */
 
-    public Transfer(String dateN, double amountN, String descriptionN, String senderN, String recipientN) {
-        super(dateN, 0, descriptionN);
-        setAmount(amountN);
-        setRecipient(recipientN);
-        setSender(senderN);
+    public Transfer(String date, double amount, String description, String sender, String recipient) {
+        super(date, 0, description);
+        setAmount(amount);
+        setRecipient(recipient);
+        setSender(sender);
 
 
     }
 
     /**
-     * Copy Konstruktor
+     * Copy Constructor
      *
      * @param transfer
      */
@@ -44,16 +47,16 @@ public class Transfer extends Transaction implements CalculateBill {
     }
 
 
-    /**
-     * @param amountN setter
+    /** Setter for Amount of the Transfer
+     * @param amount
      */
     @Override
-    public void setAmount(double amountN) {
-        if (amountN < 0) {
-            System.out.println("Fehlerhafte Eingabe, Amount muss positiv sein");
+    public void setAmount(double amount) {
+        if (amount < 0) {
+            System.out.println("Wrong Input, Amount has to be Positive");
             return;
         } else {
-            this.amount = amountN;
+            this.amount = amount;
         }
     }
 
@@ -64,11 +67,11 @@ public class Transfer extends Transaction implements CalculateBill {
         return this.sender;
     }
 
-    /**
-     * @param senderN setter
+    /** Setter for the Sender of the Transfer
+     * @param sender
      */
-    public void setSender(String senderN) {
-        this.sender = senderN;
+    public void setSender(String sender) {
+        this.sender = sender;
     }
 
     /**
@@ -78,15 +81,15 @@ public class Transfer extends Transaction implements CalculateBill {
         return this.recipient;
     }
 
-    /**
-     * @param recipientN setter
+    /**Setter for the Recipient of the Transfer
+     * @param recipient
      */
-    public void setRecipient(String recipientN) {
-        this.recipient = recipientN;
+    public void setRecipient(String recipient) {
+        this.recipient = recipient;
     }
 
     /**
-     * @return Attribute des Transfers
+     * @return String with the attributes from Transfers
      */
     @Override
     public String toString() {
@@ -96,16 +99,16 @@ public class Transfer extends Transaction implements CalculateBill {
     }
 
     /**
-     * @return Berechneter Amount
+     * @return Calculated Amount of the Transfer
      */
     @Override
     public double calculate() {
         return getAmount();
     }
 
-    /**
-     * @param object Welches Verglichen wird
-     * @return boolean, True wenn es gleich its
+    /**Check if the object is the same
+     * @param object which should be checked
+     * @return True if equal
      */
     @Override
     public boolean equals(Object object) {

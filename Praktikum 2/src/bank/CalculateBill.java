@@ -1,13 +1,13 @@
 package bank;
 
 /**
- * Interface Calculate Bill welches für Berechnungen benutzt wird
+ * Interface Calculate Bill is used to calculate
  */
 public interface CalculateBill {
 
 
     /**
-     * @return Berechneter Calculate
+     * @return Calculated Amount
      */
     public double calculate();
 

@@ -1,89 +1,95 @@
 package bank;
 
+/**
+ * Payment Class is a subclass from Transaction and uses CalculateBill
+ */
 public class Payment extends Transaction implements CalculateBill {
 
     /**
-     * Attirbut Zinsen bei einer Einzahlung
+     * Incoming interest from a Transaction
      */
     private double incomingInterest;
     /**
-     * Attirbut Zinsen bei einer Auszahlung
+     * Outgoing interest from a Transaction
      */
     private double outgoingInterest;
 
 
     /**
-     * Konstruktor mit den Zusätzlichen Payment Attributen
+     * Standard Transaction-constructor with Payment Attributes
      *
-     * @param dateN
-     * @param amountN
-     * @param descriptionN
-     * @param incomingInterestN
-     * @param outgoingInterestN
+     * @param date
+     * @param amount
+     * @param description
+     * @param incomingInterest
+     * @param outgoingInterest
      */
-    public Payment(String dateN, double amountN, String descriptionN, double incomingInterestN, double outgoingInterestN) {
-        super(dateN, amountN, descriptionN);
-        setOutgoingInterest(outgoingInterestN);
-        setIncomingInterest(incomingInterestN);
+    public Payment(String date, double amount, String description, double incomingInterest, double outgoingInterest) {
+        super(date, amount, description);
+        setOutgoingInterest(outgoingInterest);
+        setIncomingInterest(incomingInterest);
 
 
     }
 
     /**
-     * Copy Konstruktor
+     * Copy Constructor
      *
-     * @param paymenN
+     * @param payment
      */
 
-    public Payment(Payment paymenN) {
-        super(paymenN);
-        setOutgoingInterest(paymenN.getOutgoingInterest());
-        setIncomingInterest(paymenN.getIncomingInterest());
+    public Payment(Payment payment) {
+        super(payment);
+        setOutgoingInterest(payment.getOutgoingInterest());
+        setIncomingInterest(payment.getIncomingInterest());
 
     }
 
 
+
+
     /**
-     * @return double IncomingInterest
+     * @return  IncomingInterest
      */
     public double getIncomingInterest() {
         return this.incomingInterest;
     }
 
-    /**
-     * @param incomingInterestN Setter
+    /** Setter for incomingInterest
+     * @param incomingInterest
      */
-    public void setIncomingInterest(double incomingInterestN) {
+    public void setIncomingInterest(double incomingInterest) {
 
-        if (!(0 <= incomingInterestN && incomingInterestN <= 1)) {
-            System.out.println("Fehlerhafte Eingabe, Interest muss zwischen 0 und 1 sein");
+        if (!(0 <= incomingInterest && incomingInterest <= 1)) {
+            System.out.println("Wrong Input, Incoming-Interest has to be between 0 and 1!");
             return;
         } else {
-            this.incomingInterest = incomingInterestN;
+            this.incomingInterest = incomingInterest;
         }
     }
 
     /**
-     * @return double OutgoingInterest
+     * @return  OutgoingInterest
      */
     public double getOutgoingInterest() {
         return this.outgoingInterest;
     }
 
-    /**
-     * @param outgoingInterestN setter
+    /** Setter for  outgoingInterest
+     *
+     * @param outgoingInterest
      */
-    public void setOutgoingInterest(double outgoingInterestN) {
-        if (!(0 <= outgoingInterestN && outgoingInterestN <= 1)) {
-            System.out.println("Fehlerhafte Eingabe, Interest muss zwischen 0 und 1 sein");
+    public void setOutgoingInterest(double outgoingInterest) {
+        if (!(0 <= outgoingInterest && outgoingInterest <= 1)) {
+            System.out.println("Wrong Input, Outgoing-Interest has to be between 0 and 1!");
             return;
         } else {
-            this.outgoingInterest = outgoingInterestN;
+            this.outgoingInterest = outgoingInterest;
         }
     }
 
     /**
-     * @return Attribute als String
+     * @return String with the attributes from Payment
      */
     @Override
     public String toString() {
@@ -94,7 +100,7 @@ public class Payment extends Transaction implements CalculateBill {
 
 
     /**
-     * @return double Berechneter Amount
+     * @return Calculated Amount in a Payment
      */
     @Override
     public double calculate() {
@@ -104,9 +110,9 @@ public class Payment extends Transaction implements CalculateBill {
             return getAmount() + (getAmount() * getOutgoingInterest());
     }
 
-    /**
-     * @param object Welches Verglichen wird
-     * @return boolean, True wenn es gleich its
+    /**Check if the object is the same
+     * @param object which should be checked
+     * @return True if equal
      */
     @Override
     public boolean equals(Object object) {
