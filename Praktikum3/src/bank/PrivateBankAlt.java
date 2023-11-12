@@ -1,7 +1,6 @@
 package bank;
 
 import bank.exceptions.*;
-
 import java.util.*;
 
 public class PrivateBankAlt implements Bank{
@@ -26,7 +25,7 @@ public class PrivateBankAlt implements Bank{
      * Connection between Accounts and Transaction
      * every Account can have multiple Transactions
      */
-    private Map<String, List<Transaction>> accountsToTransaction = new HashMap<>();
+    private Map<String, List<Transaction>> accountsToTransactions = new HashMap<>();
 
 
     /**Getter for the Name
@@ -69,16 +68,16 @@ public class PrivateBankAlt implements Bank{
     /**Getter for the map AccountsToTransaction
      * @return getAccountsToTransaction
      */
-    public Map<String, List<Transaction>> getAccountsToTransaction(){
-        return this.accountsToTransaction;
+    public Map<String, List<Transaction>> getAccountsToTransactions(){
+        return this.accountsToTransactions;
     }
 
     /**Setter for the map AccountsToTranscation
      * @param map
      */
-    public void setAccountsToTransaction(Map<String, List<Transaction>> map)
+    public void setAccountsToTransactions(Map<String, List<Transaction>> map)
     {
-        this.accountsToTransaction=map;
+        this.accountsToTransactions =map;
     }
 
     /** Standard Constructor for a Private Bank
@@ -93,12 +92,11 @@ public class PrivateBankAlt implements Bank{
     }
 
     /** Copyconstructor for a Private Bank
-     * @param privateBank
+     * @param privateBankAlt
      */
     public PrivateBankAlt(PrivateBankAlt privateBankAlt){
-            setName(privateBankAlt.getName());
-            setIncomingInterest(privateBankAlt.getIncomingInterest());
-            setOutgoingInterest(privateBankAlt.getOutgoingInterest());
+        this(privateBankAlt.getName(),privateBankAlt.getIncomingInterest(),privateBankAlt.getOutgoingInterest());
+        this.accountsToTransactions = privateBankAlt.getAccountsToTransactions();
     }
 
     /**
@@ -106,7 +104,21 @@ public class PrivateBankAlt implements Bank{
      */
     @Override
     public String toString(){
-        return "Name: " + getName() + ", IncomingInterest: " + getIncomingInterest() + ", OutgoingInterest: " + getOutgoingInterest();
+        StringBuilder str = new StringBuilder();
+        Set<String> setKey = accountsToTransactions.keySet();
+        for (String key : setKey)
+        {
+            str.append(key).append(" => \n");
+            List<Transaction> transactionsList = accountsToTransactions.get(key);
+            for (Transaction transaction : transactionsList)
+            {
+                str.append("\t\t").append(transaction);
+            }
+        }
+        return "Name: " + getName() +
+                "\n IncomingInterest: " + getIncomingInterest() +
+                "\n OutgoingInterest: " + getOutgoingInterest() +
+                "\n " + str;
     }
 
     /**
@@ -120,7 +132,7 @@ public class PrivateBankAlt implements Bank{
             return (getName().equals(((PrivateBankAlt) object).getName())) &&
                     (Double.compare(getIncomingInterest(),((PrivateBankAlt) object).getIncomingInterest()) ==0) &&
                     (Double.compare(getOutgoingInterest(),((PrivateBankAlt) object).getOutgoingInterest())==0) &&
-                    (getAccountsToTransaction().equals(((PrivateBankAlt) object).getAccountsToTransaction()));
+                    (getAccountsToTransactions().equals(((PrivateBankAlt) object).getAccountsToTransactions()));
         }
         return false;
     }
@@ -131,12 +143,12 @@ public class PrivateBankAlt implements Bank{
      */
     @Override
     public void createAccount(String account) throws AccountAlreadyExistsException{
-    if(!(accountsToTransaction.containsKey(account))){
-        accountsToTransaction.put(account, List.of());
-    }
-    else{
-        throw new AccountAlreadyExistsException();
-    }
+        if(!(accountsToTransactions.containsKey(account))){
+            accountsToTransactions.put(account, List.of());
+        }
+        else{
+            throw new AccountAlreadyExistsException();
+        }
     }
 
     /** Adds an account to the Private Bank
@@ -149,22 +161,22 @@ public class PrivateBankAlt implements Bank{
     @Override
     public void createAccount(String account,List<Transaction> transactions)
             throws AccountAlreadyExistsException,TransactionAlreadyExistException, TransactionAttributeException{
-        if(accountsToTransaction.containsKey(account)){
+        if(accountsToTransactions.containsKey(account)){
             throw new AccountAlreadyExistsException();
         }
         else{
             Set<Transaction> dupTransactions = new HashSet<>();
             for(Transaction pTransactions: transactions)
             {
-               if(!dupTransactions.add(pTransactions))
-               {
-                   throw new TransactionAlreadyExistException();
-               }
-               if(!pTransactions.validateTransactionAttributes()){
-                   throw new TransactionAttributeException();
-               }
+                if(!dupTransactions.add(pTransactions))
+                {
+                    throw new TransactionAlreadyExistException();
+                }
+                if(!pTransactions.validateTransactionAttributes()){
+                    throw new TransactionAttributeException();
+                }
             }
-            accountsToTransaction.put(account, transactions);
+            accountsToTransactions.put(account, transactions);
         }
     }
 
@@ -177,8 +189,8 @@ public class PrivateBankAlt implements Bank{
      */
     @Override
     public void addTransaction(String account, Transaction transaction)
-            throws TransactionAlreadyExistException, AccountDoesNotExistException, TransactionAttributeException{
-        if(!(accountsToTransaction.containsKey(account)))
+            throws TransactionAlreadyExistException, AccountDoesNotExistException, TransactionAttributeException, IncomingException, OutgoingException {
+        if(!(accountsToTransactions.containsKey(account)))
         {
             throw new AccountDoesNotExistException();
         }
@@ -196,7 +208,9 @@ public class PrivateBankAlt implements Bank{
                 payment.setIncomingInterest(getIncomingInterest());
                 payment.setOutgoingInterest(getOutgoingInterest());
             }
-            accountsToTransaction.get(account).add(transaction);
+            List<Transaction> transactionsList = new ArrayList<>(accountsToTransactions.get(account));
+            transactionsList.add(transaction);
+            accountsToTransactions.put(account, transactionsList);
         }
     }
 
@@ -208,54 +222,54 @@ public class PrivateBankAlt implements Bank{
      */
     @Override
     public void removeTransaction(String account, Transaction transaction)
-         throws AccountDoesNotExistException, TransactionDoesNotExistException{
-        if(!(accountsToTransaction.containsKey(account)))
-         {
-             throw new AccountDoesNotExistException();
-         }else{
-             List<Transaction> transactions =  accountsToTransaction.get(account);
-             boolean found= false;
-             for(Transaction pTransaction: transactions)
-             {
-                 if (pTransaction.equals(transaction)) {
-                     found = true;
-                     break;
-                 }
-             }
+            throws AccountDoesNotExistException, TransactionDoesNotExistException{
+        if(!(accountsToTransactions.containsKey(account)))
+        {
+            throw new AccountDoesNotExistException();
+        }else{
+            List<Transaction> transactions =  accountsToTransactions.get(account);
+            boolean found= false;
+            for(Transaction pTransaction: transactions)
+            {
+                if (pTransaction.equals(transaction)) {
+                    found = true;
+                    break;
+                }
+            }
             if(found) {
-                accountsToTransaction.get(account).remove(transaction);
+                accountsToTransactions.get(account).remove(transaction);
             }else {
                 throw new TransactionDoesNotExistException();
             }
-         }
-     }
+        }
+    }
 
     /**Check if the Account already has the Transaction
      * @param account     the account from which the transaction is checked
      * @param transaction the transaction to search/look for
      * @return True if already exist
      */
-     @Override
+    @Override
     public  boolean containsTransaction(String account, Transaction transaction){
-         List<Transaction> transactions =  accountsToTransaction.get(account);
-         for(Transaction pTransaction: transactions)
-         {
-             if(pTransaction.equals(transaction))
-             {
+        List<Transaction> transactions =  accountsToTransactions.get(account);
+        for(Transaction pTransaction: transactions)
+        {
+            if(pTransaction.equals(transaction))
+            {
                 return true;
-             }
-         }
-         return false;
-     }
+            }
+        }
+        return false;
+    }
 
     /**
      * @param account the selected account
      * @return Calculated AccoutBalance
      */
-     @Override
+    @Override
     public double getAccountBalance(String account){
         double ans=0;
-        for(Transaction transactions: accountsToTransaction.get(account))
+        for(Transaction transactions: accountsToTransactions.get(account))
         {
             if(!(transactions instanceof Transfer))
             {
@@ -269,7 +283,7 @@ public class PrivateBankAlt implements Bank{
             }
         }
         return ans;
-     }
+    }
 
     /**
      * @param account the selected account
@@ -278,7 +292,7 @@ public class PrivateBankAlt implements Bank{
     @Override
     public List<Transaction> getTransactions(String account)
     {
-        return  accountsToTransaction.get(account);
+        return  accountsToTransactions.get(account);
     }
 
     /**

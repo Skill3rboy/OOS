@@ -22,6 +22,7 @@ public class Main {
         paymentTest();
         transferTest();
         privateBankTest();
+        privateBankAltTest();
 
     }
 
@@ -140,5 +141,39 @@ public class Main {
         System.out.println("Test Over! \n \n " );
     }
 
+    public static void privateBankAltTest()
+            throws AccountAlreadyExistsException, TransactionAlreadyExistException, AccountDoesNotExistException, TransactionAttributeException, IncomingException, OutgoingException, TransactionDoesNotExistException {
+
+        System.out.println("Starting the Private-Bank-Alt-Class test! \n \n" );
+        double incomingInterest=0.5;
+        double outgoingInterest=0.5;
+        String date = "9.10.2023";
+        double amountIn = 1000;
+        double amountOut = -1000;
+        String description = "Test";
+        Transaction transaction= new Payment(date,amountIn,description,incomingInterest,outgoingInterest);
+        Transaction transaction2= new Payment(date,amountIn,"description",incomingInterest,outgoingInterest);
+        PrivateBankAlt privateBankAlt = new PrivateBankAlt("PrivateBankAlt",incomingInterest,outgoingInterest);
+        PrivateBankAlt privateBankAlt2 = new PrivateBankAlt("PrivateBankAlt2",incomingInterest,outgoingInterest);
+        PrivateBankAlt privateBankAltC = new PrivateBankAlt(privateBankAlt);
+        privateBankAlt.createAccount("Fabian");
+        //privateBankAlt.createAccount("Fabian"); // Error
+        privateBankAlt.addTransaction("Fabian", transaction);
+        //privateBankAlt.addTransaction("Fabian", transaction); // Error
+        System.out.println(privateBankAlt.toString()); // 1 Transaction
+        privateBankAlt.removeTransaction("Fabian",transaction);
+        System.out.println(privateBankAlt.toString()); // 0 Transaction
+        System.out.println(privateBankAlt.containsTransaction("Fabian",transaction)); // False
+        privateBankAlt.addTransaction("Fabian", transaction);
+        System.out.println(privateBankAlt.containsTransaction("Fabian",transaction)); // True
+        System.out.println(privateBankAlt.getAccountBalance("Fabian")); // 1500
+        privateBankAlt.addTransaction("Fabian", transaction2);
+        System.out.println(privateBankAlt.getAccountBalance("Fabian")); // 3000
+        System.out.println(privateBankAlt.toString());
+
+        System.out.println(privateBankAlt.equals(privateBankAlt2)); // false
+        System.out.println(privateBankAlt.equals(privateBankAltC)); //true
+        System.out.println("Test Over! \n \n " );
+    }
 }
 
