@@ -16,11 +16,17 @@ public class IncomingTransfer extends Transfer {
         super(date, amount, description, sender, recipient);
     }
 
+    /**
+     * @param transfer
+     */
+    public IncomingTransfer(Transfer transfer){
+        super(transfer);
+    }
     /**Calculates the value of an account
      * @return amount of Money
      */
     @Override
     public double calculate(){
-        return +this.getAmount();
+        return +super.calculate();
     }
 }

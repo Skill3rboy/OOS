@@ -17,6 +17,15 @@ public class Transfer extends Transaction {
      */
     private String recipient;
 
+    /** Standard Constructor without Transfer Attributes
+     *
+     * @param date
+     * @param amount
+     * @param description
+     */
+    public Transfer(String date, double amount, String description){
+        super(date,amount,description);
+    }
 
     /**
      * Standard Transaction-constructor with Transfer Attributes
@@ -29,7 +38,7 @@ public class Transfer extends Transaction {
      */
 
     public Transfer(String date, double amount, String description, String sender, String recipient) {
-        super(date, 0, description);
+        super(date, amount, description);
         setAmount(amount);
         setRecipient(recipient);
         setSender(sender);
@@ -118,6 +127,8 @@ public class Transfer extends Transaction {
      */
     @Override
     public boolean equals(Object object) {
+        if (object == null) return false;
+        if (object.getClass() != this.getClass()) return false;
         Transfer other = (Transfer) object;
         return ((super.equals(object)) && (this.getRecipient().equals(other.getRecipient())) && (this.getSender().equals(other.getSender())));
     }

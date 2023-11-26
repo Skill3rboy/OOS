@@ -1,16 +1,16 @@
 package bank;
 
-import bank.exceptions.IncomingException;
-import bank.exceptions.OutgoingException;
-import bank.exceptions.TransactionAttributeException;
 import com.google.gson.*;
 
 import java.lang.reflect.Type;
+
 
 /**
  * Class for Transaction Serialization
  */
 public class TransactionSerializer implements JsonSerializer<Transaction>, JsonDeserializer<Transaction> {
+
+
     /**
      * @param jsonElement
      * @param type
@@ -21,31 +21,33 @@ public class TransactionSerializer implements JsonSerializer<Transaction>, JsonD
     @Override
     public Transaction deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
         JsonObject jsonObject = jsonElement.getAsJsonObject();
-        if(jsonObject.get("CLASSNAME").getAsString().equals("Payment"))
+        JsonObject instance = jsonObject.get("INSTANCE").getAsJsonObject();
+        String classname = jsonObject.get("CLASSNAME").getAsString();
+        if(classname.equals("Payment"))
         {
-            return new Payment(jsonObject.get("date").getAsString(),
-                    jsonObject.get("amount").getAsDouble(),
-                    jsonObject.get("description").getAsString(),
-                    jsonObject.get("incomingInterest").getAsDouble(),
-                    jsonObject.get("outgoingInterest").getAsDouble());
-        } else if (jsonObject.get("CLASSNAME").getAsString().equals("IncomingTransfer")) {
+            return new Payment(
+                    instance.get("date").getAsString(),
+                    instance.get("amount").getAsDouble(),
+                    instance.get("description").getAsString(),
+                    instance.get("incomingInterest").getAsDouble(),
+                    instance.get("outgoingInterest").getAsDouble());
+        } else if (classname.equals("IncomingTransfer")) {
             return new IncomingTransfer(
-                    jsonObject.get("date").getAsString(),
-                    jsonObject.get("amount").getAsDouble(),
-                    jsonObject.get("description").getAsString(),
-                    jsonObject.get("sender").getAsString(),
-                    jsonObject.get("recipient").getAsString());
+                    instance.get("date").getAsString(),
+                    instance.get("amount").getAsDouble(),
+                    instance.get("description").getAsString(),
+                    instance.get("sender").getAsString(),
+                    instance.get("recipient").getAsString());
         } else{
             return new OutgoingTransfer(
-                    jsonObject.get("date").getAsString(),
-                    jsonObject.get("amount").getAsDouble(),
-                    jsonObject.get("description").getAsString(),
-                    jsonObject.get("sender").getAsString(),
-                    jsonObject.get("recipient").getAsString());
+                    instance.get("date").getAsString(),
+                    instance.get("amount").getAsDouble(),
+                    instance.get("description").getAsString(),
+                    instance.get("sender").getAsString(),
+                    instance.get("recipient").getAsString());
+
         }
-
-    }
-
+}
     /**
      * @param transaction
      * @param type

@@ -88,7 +88,7 @@ public abstract class Transaction implements CalculateBill {
      */
     @Override
     public String toString() {
-        return "Date: " + getDate() + ", Amount: " + calculate() + ",  Description: " + getDescription();
+        return "Date: " + getDate() + ", Amount: " + calculate() + ", Description: " + getDescription();
     }
 
     /** Check if the object is the same

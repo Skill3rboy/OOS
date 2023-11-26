@@ -17,11 +17,18 @@ public class OutgoingTransfer extends Transfer{
     }
 
     /**
+     * @param transfer
+     */
+    public OutgoingTransfer(Transfer transfer){
+        super(transfer);
+    }
+
+    /**
      * @return negativ amount of the Transfer
      */
     @Override
     public double calculate()
     {
-        return -this.getAmount();
+        return -super.calculate();
     }
 }

@@ -16,7 +16,15 @@ public class Payment extends Transaction  {
      */
     private double outgoingInterest;
 
-
+    /**Standard Constructor without Payment Attributes
+     *
+     * @param date
+     * @param amount
+     * @param description
+     */
+    public Payment(String date, double amount, String description){
+        super(date,amount,description);
+    }
     /**
      * Standard Transaction-constructor with Payment Attributes
      *
@@ -115,7 +123,7 @@ public class Payment extends Transaction  {
     @Override
     public double calculate() {
         if (getAmount() > 0) {
-            return getAmount() + (getAmount() * getIncomingInterest());
+            return getAmount() - (getAmount() * getIncomingInterest());
         } else
             return getAmount() + (getAmount() * getOutgoingInterest());
     }
@@ -126,6 +134,8 @@ public class Payment extends Transaction  {
      */
     @Override
     public boolean equals(Object object) {
+        if (object == null) return false;
+        if (object.getClass() != this.getClass()) return false;
         Payment other = (Payment) object;
         return ((super.equals(object)) && (Double.compare(this.getIncomingInterest(), other.getIncomingInterest()) == 0) && (Double.compare(this.getOutgoingInterest(), other.getOutgoingInterest()) == 0));
 
