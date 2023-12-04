@@ -405,7 +405,7 @@ public class PrivateBank implements Bank{
      * @throws AccountDoesNotExistException
      * @throws IOException
      */
-    public void deleteAccount(String account) throws AccountDoesNotExistException,IOException{
+    public void deleteAccount(String account) throws AccountDoesNotExistException, IOException {
         if(!accountsToTransactions.containsKey(account)) {
             throw new AccountDoesNotExistException();
         }else{
