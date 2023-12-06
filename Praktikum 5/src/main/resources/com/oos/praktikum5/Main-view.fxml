@@ -84,16 +84,16 @@
         </Menu>
       </menus>
     </MenuBar>
-    <AnchorPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
+    <AnchorPane fx:id="root" maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
       <children>
-            <ListView id="accountListView" layoutX="14.0" layoutY="77.0" prefHeight="200.0" prefWidth="200.0" />
+            <ListView fx:id="accountListView" layoutX="14.0" layoutY="77.0" prefHeight="200.0" prefWidth="200.0" />
             <Text layoutX="28.0" layoutY="95.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Liste Aller Accounts" wrappingWidth="161.16015625" />
             <StackPane layoutX="14.0" layoutY="102.0" prefHeight="150.0" prefWidth="200.0">
                <children>
-                  <Text id="text" strokeType="OUTSIDE" strokeWidth="0.0" text="Text" />
+                  <Text fx:id="text" strokeType="OUTSIDE" strokeWidth="0.0"  />
                </children>
             </StackPane>
-            <Button id="add" alignment="CENTER" layoutX="47.0" layoutY="252.0" mnemonicParsing="false" text="Account Hinzufügen" />
+            <Button fx:id="add" alignment="CENTER" layoutX="47.0" layoutY="252.0" mnemonicParsing="false" text="Account Hinzufügen" />
       </children>
     </AnchorPane>
   </children>

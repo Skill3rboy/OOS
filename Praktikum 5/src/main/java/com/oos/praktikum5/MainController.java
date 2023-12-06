@@ -1,10 +1,7 @@
 package com.oos.praktikum5;
 
 import bank.PrivateBank;
-import bank.exceptions.AccountDoesNotExistException;
-import bank.exceptions.IncomingException;
-import bank.exceptions.OutgoingException;
-import bank.exceptions.TransferAmountException;
+import bank.exceptions.*;
 import javafx.fxml.Initializable;
 
 import java.io.IOException;
@@ -39,6 +36,9 @@ public class MainController implements Initializable {
     private Stage stage;
     private Parent root;
     private Scene scene;
+
+
+
     public void uptdateList(){
         accountList.clear();
         accountList.addAll(privateBank.getAllAccounts());
@@ -95,6 +95,51 @@ public class MainController implements Initializable {
             stage.setTitle("Privatebank");
             stage.setScene(scene);
             stage.show();
+        });
+
+        add.setOnMouseClicked(event -> {
+            text.setText("");
+            Dialog<String> dialog = new Dialog<>();
+            dialog.setTitle("Account hinzufügen");
+            dialog.setHeaderText("Account hinzufügen");
+            dialog.getDialogPane().setMinWidth(300);
+
+            Label label = new Label("Name: ");
+            TextField textField = new TextField();
+            GridPane gridPane = new GridPane();
+            gridPane.add(label,2,1);
+            gridPane.add(textField,3,1);
+            dialog.getDialogPane().setContent(gridPane);
+            dialog.setResizable(true);
+            ButtonType buttonTypeOK = new ButtonType("Bestätigen", ButtonBar.ButtonData.OK_DONE);
+            dialog.getDialogPane().getButtonTypes().add(buttonTypeOK);
+            dialog.setResultConverter(buttonType -> {
+                if(buttonType== buttonTypeOK){
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    if(!Objects.equals(textField.getText(),"")){
+                        try {
+                            privateBank.createAccount(textField.getText());
+                            text.setText("Account erstellt");
+                        } catch (AccountAlreadyExistsException e) {
+                            alert.setContentText("Account vorhanden");
+                            Optional<ButtonType> optional = alert.showAndWait();
+                            if(optional.isPresent() && optional.get() == ButtonType.OK)
+                                text.setText("Account exisitiert");
+                            throw new RuntimeException(e);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                        uptdateList();
+                    }else {
+                        alert.setContentText("Ungültig");
+                        Optional<ButtonType> optional = alert.showAndWait();
+                        if(optional.isPresent() && optional.get() == ButtonType.OK)
+                            text.setText("Account ungültig");
+                    }
+                }
+                return null;
+            });
+            dialog.show();
         });
     }
 }

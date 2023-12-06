@@ -85,7 +85,7 @@
         </Menu>
       </menus>
     </MenuBar>
-    <AnchorPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
+    <AnchorPane fx:id="root" maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
       <children>
             <ListView fx:id="transactionsListView" layoutX="54.0" layoutY="88.0" prefHeight="200.0" prefWidth="200.0" />
             <StackPane layoutX="54.0" layoutY="113.0" prefHeight="150.0" prefWidth="200.0">

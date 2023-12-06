@@ -28,6 +28,7 @@ public class MainApplication extends Application{
     public void start(Stage primaryStage) throws Exception {
         Parent fxmlLoader = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("Main-view.fxml")));
         Scene scene = new Scene(fxmlLoader);
+        primaryStage.setTitle("Privatebank");
         primaryStage.setScene(scene);
         primaryStage.show();
     }
