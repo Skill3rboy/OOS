@@ -35,8 +35,8 @@
     <MenuButton fx:id="add" layoutX="860.0" layoutY="398.0" mnemonicParsing="false" text="Hinzufügen" textAlignment="CENTER">
         <items>
             <MenuItem fx:id="payment" mnemonicParsing="false" text="Neues Payment" />
-            <MenuItem fx:id="incoming" mnemonicParsing="false" text="Neue Eingehende Transaktion" />
-            <MenuItem fx:id="outgoing" mnemonicParsing="false" text="Neue Ausgehende Transaktion" />
+            <MenuItem fx:id="transfer" mnemonicParsing="false" text="Neue Transaktion" />
+
         </items>
         <font>
             <Font size="14.0" />

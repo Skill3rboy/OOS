@@ -54,6 +54,9 @@ public class MainController implements Initializable {
         accountListView.setContextMenu(contextMenu);
         AtomicReference<String> selectedAccount= new AtomicReference<>();
 
+        accountListView.setOnMouseClicked(event -> {
+            selectedAccount.set(String.valueOf(accountListView.getSelectionModel().getSelectedItems()));
+        });
         //löschen funktion
         deleteAccount.setOnAction(event -> {
             Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
@@ -87,7 +90,7 @@ public class MainController implements Initializable {
             stage.setScene(scene);
             stage.show();
         });
-
+        //add account button
         addAccount.setOnMouseClicked(event -> {
             text.setText("");
             Dialog<String> dialog = new Dialog<>();

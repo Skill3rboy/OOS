@@ -162,6 +162,7 @@ public class PrivateBank implements Bank{
      */
     @Override
     public void createAccount(String account) throws AccountAlreadyExistsException, IOException {
+        readAccounts();
         if (!(accountsToTransactions.containsKey(account))) {
             accountsToTransactions.put(account, List.of());
         } else {
@@ -185,6 +186,11 @@ public class PrivateBank implements Bank{
     @Override
     public void createAccount(String account,List<Transaction> transactions)
             throws AccountAlreadyExistsException, TransactionAlreadyExistException, TransactionAttributeException {
+        try {
+            readAccounts();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         if(accountsToTransactions.containsKey(account)){
             throw new AccountAlreadyExistsException();
         }
@@ -291,6 +297,8 @@ public class PrivateBank implements Bank{
      @Override
     public double getAccountBalance(String account){
     double ans=0;
+    if(accountsToTransactions==null)
+        return ans;
     for(Transaction transactions: accountsToTransactions.get(account))
     {
         ans+= transactions.calculate();

@@ -1,9 +1,7 @@
 package com.oos.praktikum5;
 
-import bank.PrivateBank;
-import bank.Transaction;
-import bank.exceptions.AccountDoesNotExistException;
-import bank.exceptions.TransactionDoesNotExistException;
+import bank.*;
+import bank.exceptions.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -13,6 +11,7 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.layout.GridPane;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
@@ -48,6 +47,14 @@ public class AccountController implements Initializable {
     @FXML
     public ListView<Transaction> transactionListView;
     private final ObservableList<Transaction> transactionsList= FXCollections.observableArrayList();
+
+    @FXML
+    public MenuItem payment;
+    @FXML
+    public MenuItem transfer;
+
+    private PrivateBank privateBank;
+
     /**
      * Called to initialize a controller after its root element has been
      * completely processed.
@@ -75,6 +82,7 @@ public class AccountController implements Initializable {
 
     public void setUp(PrivateBank privateBank, String name){
         //Init
+        this.privateBank=privateBank;
         accountName.setText(name+" ["+privateBank.getAccountBalance(name)+"€]");
         update(privateBank.getTransactions(name));
 
@@ -117,10 +125,165 @@ public class AccountController implements Initializable {
         positive.setOnAction(event -> update(privateBank.getTransactionsByType(name,true)));
         //Sortierung negative
         negative.setOnAction(event -> update(privateBank.getTransactionsByType(name,false)));
+
+        payment.setOnAction(event -> setTransasaction(payment,name));
+        transfer.setOnAction(event -> setTransasaction(transfer,name));
     }
-    public void update(List<Transaction> transactionList){
+    private void update(List<Transaction> transactionList){
         transactionsList.clear();
         transactionsList.addAll(transactionList);
         transactionListView.setItems(transactionsList);
+    }
+
+    private void setTransasaction(MenuItem menuItem, String name){
+        Dialog<Transaction> dialog = new Dialog<>();
+        GridPane gridPane = new GridPane();
+
+        Label date = new Label("Datum: ");
+        Label amount = new Label("Betrag: ");
+        Label description = new Label("Beschreibung: ");
+        Label incomingInterest_sender = new Label();
+        Label outgoingInterest_recipient = new Label();
+
+        TextField dateText = new TextField();
+        TextField amountText = new TextField();
+        TextField descriptionText = new TextField();
+        TextField incomingInterest_senderText = new TextField();
+        TextField outgoingInterest_recipientText = new TextField();
+
+        gridPane.add(date, 1, 1);
+        gridPane.add(dateText, 2, 1);
+        gridPane.add(description, 1, 2);
+        gridPane.add(descriptionText, 2, 2);
+        gridPane.add(amount, 1, 3);
+        gridPane.add(amountText, 2, 3);
+        gridPane.add(incomingInterest_sender, 1, 4);
+        gridPane.add(incomingInterest_senderText, 2, 4);
+        gridPane.add(outgoingInterest_recipient, 1, 5);
+        gridPane.add(outgoingInterest_recipientText, 2, 5);
+
+        ButtonType okButton = new ButtonType("Hinzufügen", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().setContent(gridPane);
+        dialog.setResizable(true);
+        dialog.getDialogPane().getButtonTypes().add(okButton);
+
+        Alert invalid = new Alert(Alert.AlertType.ERROR);
+        dialog.show();
+        //Payment fall
+        if(Objects.equals(menuItem.getId(),"payment")){
+        dialog.setTitle("Payment");
+        incomingInterest_sender.setText("Incoming interest: ");
+        outgoingInterest_recipient.setText("Outgoing interest: ");
+        dialog.setResultConverter(buttonType -> {
+            if(buttonType == okButton){
+                if(Objects.equals(dateText.getText(),"")||
+                        Objects.equals(amountText.getText(), "") ||
+                        Objects.equals(descriptionText.getText(),"") ||
+                        Objects.equals(incomingInterest_senderText.getText(), "") ||
+                        Objects.equals(outgoingInterest_recipientText.getText(), "")){
+                    invalid.setContentText("Ungültige Werte");
+                    Optional<ButtonType> optional = invalid.showAndWait();
+                    if(optional.isPresent()&&optional.get()==ButtonType.OK){
+                        text.setText("Es wurde nichts gemacht");
+                    }
+                }else {
+                    Payment payment = new Payment(dateText.getText(),
+                            Double.parseDouble(amountText.getText()),
+                            descriptionText.getText(),
+                            Double.parseDouble(incomingInterest_senderText.getText()),
+                            Double.parseDouble(outgoingInterest_recipientText.getText()));
+                    try {
+                        privateBank.addTransaction(name,payment);
+                        text.setText("Neues Payment hinzugefügt");
+                    } catch (TransactionAlreadyExistException | AccountDoesNotExistException |
+                             TransactionAttributeException | IncomingException | OutgoingException | IOException e) {
+                        throw new RuntimeException(e);
+                    }
+
+                    update(privateBank.getTransactions(name));
+                    accountName.setText(name + " ["+privateBank.getAccountBalance(name)+" €]");
+                }
+            }
+            return null;
+        });
+        }else if(Objects.equals(menuItem.getId(),"transfer")){ // Transfer
+            incomingInterest_sender.setText("Sender: ");
+            outgoingInterest_recipient.setText("Empfänger: ");
+            if(outgoingInterest_recipientText.getText().equals(name)){ // Incoming Transfer
+                dialog.setTitle("Incomingtransfer");
+                dialog.setResultConverter(buttonType->{
+                    if(buttonType==okButton){
+                        if (Objects.equals(dateText.getText(), "") ||
+                                Objects.equals(amountText.getText(), "") ||
+                                Objects.equals(descriptionText.getText(),"") ||
+                                Objects.equals(incomingInterest_senderText.getText(), "") ||
+                                Objects.equals(outgoingInterest_recipientText.getText(), ""))
+                        {
+                            invalid.setContentText("Ungültige Werte");
+                            Optional<ButtonType> optional = invalid.showAndWait();
+                            if(optional.isPresent() && optional.get()==ButtonType.OK){
+                                text.setText("Es wurde nicht gemacht");
+                            }
+                        }else {
+                            IncomingTransfer incomingTransfer = new IncomingTransfer(dateText.getText(),
+                                    Double.parseDouble(amountText.getText()),
+                                    descriptionText.getText(),
+                                    incomingInterest_senderText.getText(),
+                                    outgoingInterest_recipientText.getText());
+
+                            try {
+                                privateBank.addTransaction(name,incomingTransfer);
+                                text.setText("Der Incomingtransfer wurde hinzugefügt");
+                            } catch (TransactionAlreadyExistException | AccountDoesNotExistException |
+                                     TransactionAttributeException | IncomingException | IOException |
+                                     OutgoingException e) {
+                                throw new RuntimeException(e);
+                            }
+                            update(privateBank.getTransactions(name));
+                            accountName.setText(name + " [" + privateBank.getAccountBalance(name) + "€]");
+                        }
+                    }
+                    return null;
+                });
+            }
+            else if (incomingInterest_senderText.getText().equals(name)) {// Outgoing Transfer
+                dialog.setTitle("Outgoingtransfer");
+
+                dialog.setResultConverter(buttonType -> {
+                    if(buttonType==okButton){
+                        if (Objects.equals(dateText.getText(), "") ||
+                                Objects.equals(amountText.getText(), "") ||
+                                Objects.equals(descriptionText.getText(),"") ||
+                                Objects.equals(incomingInterest_senderText.getText(), "") ||
+                                Objects.equals(outgoingInterest_recipientText.getText(), ""))
+                        {
+                            invalid.setContentText("Ungültige werte");
+                            Optional<ButtonType> optional = invalid.showAndWait();
+                            if (optional.isPresent() && optional.get() == ButtonType.OK) {
+                                text.setText("Es wurde nichts gemacht");
+                            }
+                        }else {
+                            OutgoingTransfer outgoingTransfer = new OutgoingTransfer(dateText.getText(),
+                                    Double.parseDouble(amountText.getText()),
+                                    descriptionText.getText(),
+                                    incomingInterest_senderText.getText(),
+                                    outgoingInterest_recipientText.getText());
+
+                            try {
+                                privateBank.addTransaction(name,outgoingTransfer);
+                                text.setText("Outgoing Transfer hinzugefügt");
+                            } catch (TransactionAlreadyExistException | AccountDoesNotExistException |
+                                     TransactionAttributeException | IncomingException | OutgoingException |
+                                     IOException e) {
+                                throw new RuntimeException(e);
+                            }
+                            update(privateBank.getTransactions(name));
+                            accountName.setText(name + " [" + privateBank.getAccountBalance(name) + "€]");
+                        }
+                    }
+                    return null;
+                });
+            }
+        }
     }
 }
