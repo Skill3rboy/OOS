@@ -126,8 +126,8 @@ public class AccountController implements Initializable {
         //Sortierung negative
         negative.setOnAction(event -> update(privateBank.getTransactionsByType(name,false)));
 
-        payment.setOnAction(event -> setTransasaction(payment,name));
-        transfer.setOnAction(event -> setTransasaction(transfer,name));
+        payment.setOnAction(event -> setTransaction(payment,name));
+        transfer.setOnAction(event -> setTransaction(transfer,name));
     }
     private void update(List<Transaction> transactionList){
         transactionsList.clear();
@@ -135,7 +135,7 @@ public class AccountController implements Initializable {
         transactionListView.setItems(transactionsList);
     }
 
-    private void setTransasaction(MenuItem menuItem, String name){
+    private void setTransaction(MenuItem menuItem, String name){
         Dialog<Transaction> dialog = new Dialog<>();
         GridPane gridPane = new GridPane();
 

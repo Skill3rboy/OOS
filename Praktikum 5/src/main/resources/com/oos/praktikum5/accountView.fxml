@@ -36,7 +36,6 @@
         <items>
             <MenuItem fx:id="payment" mnemonicParsing="false" text="Neues Payment" />
             <MenuItem fx:id="transfer" mnemonicParsing="false" text="Neue Transaktion" />
-
         </items>
         <font>
             <Font size="14.0" />
