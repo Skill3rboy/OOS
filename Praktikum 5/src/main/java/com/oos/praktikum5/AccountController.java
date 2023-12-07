@@ -28,9 +28,11 @@ public class AccountController implements Initializable {
     @FXML
     public Text text;
     @FXML
-    public MenuButton add;
+    public MenuButton options;
     @FXML
     public Button back;
+    @FXML
+    public MenuButton add;
     @FXML
     public Parent root;
     @FXML
@@ -59,7 +61,7 @@ public class AccountController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         back.setOnMouseClicked(mouseEvent ->{
             try {
-                root= FXMLLoader.load(Objects.requireNonNull(getClass().getResource("mainView.fxml")));
+                root= FXMLLoader.load(Objects.requireNonNull(getClass().getResource("Main-view.fxml")));
             }catch (IOException e) {
                 throw new RuntimeException(e);
             }

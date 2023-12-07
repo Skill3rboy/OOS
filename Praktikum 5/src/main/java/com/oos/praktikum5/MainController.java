@@ -6,7 +6,6 @@ import javafx.fxml.Initializable;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.Comparator;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -16,8 +15,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.fxml.Initializable;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -26,15 +23,16 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 public class MainController implements Initializable {
     @FXML
+
     private Text text;
     @FXML
-    private Button add;
+    private Button addAccount;
     @FXML
     private ListView<String> accountListView;
     private final PrivateBank privateBank = new PrivateBank("Privatebank", 0.2,0.4,"Privatebank");
     private final ObservableList<String> accountList = FXCollections.observableArrayList();
     private Stage stage;
-    private Parent root;
+    public Parent root;
     private Scene scene;
 
 
@@ -44,15 +42,7 @@ public class MainController implements Initializable {
         accountList.addAll(privateBank.getAllAccounts());
         accountListView.setItems(accountList);
     }
-    /**
-     * Called to initialize a controller after its root element has been
-     * completely processed.
-     *
-     * @param location  The location used to resolve relative paths for the root object, or
-     *                  {@code null} if the location is not known.
-     * @param resources The resources used to localize the root object, or {@code null} if
-     *                  the root object was not localized.
-     */
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         //init
@@ -89,7 +79,8 @@ public class MainController implements Initializable {
                 AccountController accountController = loader.getController();
                 accountController.setUp(privateBank,selectedAccount.toString().replace("[", "").replace("]",""));
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                e.printStackTrace();
+                //throw new RuntimeException(e);
             }
             scene = new Scene(root);
             stage.setTitle("Privatebank");
@@ -97,7 +88,7 @@ public class MainController implements Initializable {
             stage.show();
         });
 
-        add.setOnMouseClicked(event -> {
+        addAccount.setOnMouseClicked(event -> {
             text.setText("");
             Dialog<String> dialog = new Dialog<>();
             dialog.setTitle("Account hinzufügen");
