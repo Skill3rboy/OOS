@@ -24,6 +24,7 @@ import java.util.ResourceBundle;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class AccountController implements Initializable {
+    private final ObservableList<Transaction> transactionsList = FXCollections.observableArrayList();
     @FXML
     public Text text;
     @FXML
@@ -46,8 +47,6 @@ public class AccountController implements Initializable {
     public Text accountName;
     @FXML
     public ListView<Transaction> transactionListView;
-    private final ObservableList<Transaction> transactionsList= FXCollections.observableArrayList();
-
     @FXML
     public MenuItem payment;
     @FXML
@@ -66,13 +65,13 @@ public class AccountController implements Initializable {
      */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        back.setOnMouseClicked(mouseEvent ->{
+        back.setOnMouseClicked(mouseEvent -> {
             try {
-                root= FXMLLoader.load(Objects.requireNonNull(getClass().getResource("Main-view.fxml")));
-            }catch (IOException e) {
+                root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("Main-view.fxml")));
+            } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-            Stage stage = (Stage)((Node) mouseEvent.getSource()).getScene().getWindow();
+            Stage stage = (Stage) ((Node) mouseEvent.getSource()).getScene().getWindow();
             stage.setTitle("Privatebank");
             Scene scene = new Scene(root);
             stage.setScene(scene);
@@ -80,20 +79,20 @@ public class AccountController implements Initializable {
         });
     }
 
-    public void setUp(PrivateBank privateBank, String name){
+    public void setUp(PrivateBank privateBank, String name) {
         //Init
-        this.privateBank=privateBank;
-        accountName.setText(name+" ["+privateBank.getAccountBalance(name)+"€]");
+        this.privateBank = privateBank;
+        accountName.setText(name + " [" + privateBank.getAccountBalance(name) + "€]");
         update(privateBank.getTransactions(name));
 
-        ContextMenu contextMenu= new ContextMenu();
+        ContextMenu contextMenu = new ContextMenu();
         //Löschen button
         MenuItem delete = new MenuItem("Transaktion löschen");
         contextMenu.getItems().addAll(delete);
         transactionListView.setContextMenu(contextMenu);
         // Multi Threading
-        AtomicReference<Transaction> selected= new AtomicReference<>();
-        transactionListView.setOnMouseClicked(mouseEvent-> {
+        AtomicReference<Transaction> selected = new AtomicReference<>();
+        transactionListView.setOnMouseClicked(mouseEvent -> {
             selected.set(transactionListView.getSelectionModel().getSelectedItem());
         });
 
@@ -103,39 +102,40 @@ public class AccountController implements Initializable {
             confirm.setTitle("Transasktion Löschen");
             confirm.setContentText("You sure about that?");
             Optional<ButtonType> result = confirm.showAndWait();
-            if(result.isPresent()&& result.get()==ButtonType.OK){
+            if (result.isPresent() && result.get() == ButtonType.OK) {
                 try {
-                    privateBank.removeTransaction(name,selected.get());
+                    privateBank.removeTransaction(name, selected.get());
                 } catch (AccountDoesNotExistException | TransactionDoesNotExistException | IOException e) {
                     throw new RuntimeException(e);
                 }
-                text.setText(selected +" wurde gelöscht");
+                text.setText(selected + " wurde gelöscht");
                 update(privateBank.getTransactions(name));
-                accountName.setText(name+" [" + privateBank.getAccountBalance(name)+"€]");
+                accountName.setText(name + " [" + privateBank.getAccountBalance(name) + "€]");
             }
         });
 
         // Sortierung ascending
-        ascending.setOnAction(event -> update(privateBank.getTransactionsSorted(name,true)));
+        ascending.setOnAction(event -> update(privateBank.getTransactionsSorted(name, true)));
 
         //Sortierung descending
-        descending.setOnAction(event -> update(privateBank.getTransactionsSorted(name,false)));
+        descending.setOnAction(event -> update(privateBank.getTransactionsSorted(name, false)));
 
         //Sortierung positive
-        positive.setOnAction(event -> update(privateBank.getTransactionsByType(name,true)));
+        positive.setOnAction(event -> update(privateBank.getTransactionsByType(name, true)));
         //Sortierung negative
-        negative.setOnAction(event -> update(privateBank.getTransactionsByType(name,false)));
+        negative.setOnAction(event -> update(privateBank.getTransactionsByType(name, false)));
 
-        payment.setOnAction(event -> setTransaction(payment,name));
-        transfer.setOnAction(event -> setTransaction(transfer,name));
+        payment.setOnAction(event -> setTransaction(payment, name));
+        transfer.setOnAction(event -> setTransaction(transfer, name));
     }
-    private void update(List<Transaction> transactionList){
+
+    private void update(List<Transaction> transactionList) {
         transactionsList.clear();
         transactionsList.addAll(transactionList);
         transactionListView.setItems(transactionsList);
     }
 
-    private void setTransaction(MenuItem menuItem, String name){
+    private void setTransaction(MenuItem menuItem, String name) {
         Dialog<Transaction> dialog = new Dialog<>();
         GridPane gridPane = new GridPane();
 
@@ -170,61 +170,62 @@ public class AccountController implements Initializable {
         Alert invalid = new Alert(Alert.AlertType.ERROR);
         dialog.show();
         //Payment fall
-        if(Objects.equals(menuItem.getId(),"payment")){
-        dialog.setTitle("Payment");
-        incomingInterest_sender.setText("Incoming interest: ");
-        outgoingInterest_recipient.setText("Outgoing interest: ");
-        dialog.setResultConverter(buttonType -> {
-            if(buttonType == okButton){
-                if(Objects.equals(dateText.getText(),"")||
-                        Objects.equals(amountText.getText(), "") ||
-                        Objects.equals(descriptionText.getText(),"") ||
-                        Objects.equals(incomingInterest_senderText.getText(), "") ||
-                        Objects.equals(outgoingInterest_recipientText.getText(), "")){
-                    invalid.setContentText("Ungültige Werte");
-                    Optional<ButtonType> optional = invalid.showAndWait();
-                    if(optional.isPresent()&&optional.get()==ButtonType.OK){
-                        text.setText("Es wurde nichts gemacht");
-                    }
-                }else {
-                    Payment payment = new Payment(dateText.getText(),
-                            Double.parseDouble(amountText.getText()),
-                            descriptionText.getText(),
-                            Double.parseDouble(incomingInterest_senderText.getText()),
-                            Double.parseDouble(outgoingInterest_recipientText.getText()));
-                    try {
-                        privateBank.addTransaction(name,payment);
-                        text.setText("Neues Payment hinzugefügt");
-                    } catch (TransactionAlreadyExistException | AccountDoesNotExistException |
-                             TransactionAttributeException | IncomingException | OutgoingException | IOException e) {
-                        throw new RuntimeException(e);
-                    }
+        if (Objects.equals(menuItem.getId(), "payment")) {
+            dialog.setTitle("Payment");
+            incomingInterest_sender.setText("Incoming interest: ");
+            outgoingInterest_recipient.setText("Outgoing interest: ");
+            dialog.setResultConverter(buttonType -> {
+                if (buttonType == okButton) {
+                    if (Objects.equals(dateText.getText(), "") ||
+                            Objects.equals(amountText.getText(), "") ||
+                            Objects.equals(descriptionText.getText(), "") ||
+                            Objects.equals(incomingInterest_senderText.getText(), "") ||
+                            Objects.equals(outgoingInterest_recipientText.getText(), "")) {
+                        invalid.setContentText("Ungültige Werte");
+                        Optional<ButtonType> optional = invalid.showAndWait();
+                        if (optional.isPresent() && optional.get() == ButtonType.OK) {
+                            text.setText("Es wurde nichts gemacht");
+                        }
+                    } else {
+                        Payment payment = new Payment(dateText.getText(),
+                                Double.parseDouble(amountText.getText()),
+                                descriptionText.getText(),
+                                Double.parseDouble(incomingInterest_senderText.getText()),
+                                Double.parseDouble(outgoingInterest_recipientText.getText()));
+                        try {
+                            privateBank.addTransaction(name, payment);
+                            text.setText("Neues Payment hinzugefügt");
+                        } catch (TransactionAlreadyExistException | AccountDoesNotExistException |
+                                 TransactionAttributeException | IncomingException | OutgoingException |
+                                 IOException e) {
+                            throw new RuntimeException(e);
+                        }
 
-                    update(privateBank.getTransactions(name));
-                    accountName.setText(name + " ["+privateBank.getAccountBalance(name)+" €]");
+                        update(privateBank.getTransactions(name));
+                        accountName.setText(name + " [" + privateBank.getAccountBalance(name) + " €]");
+                    }
                 }
-            }
-            return null;
-        });
-        }else if(Objects.equals(menuItem.getId(),"transfer")){ // Transfer
+                return null;
+            });
+        } else if (Objects.equals(menuItem.getId(), "transfer")) { // Transfer
             incomingInterest_sender.setText("Sender: ");
             outgoingInterest_recipient.setText("Empfänger: ");
-            if(outgoingInterest_recipientText.getText().equals(name)){ // Incoming Transfer
-                dialog.setTitle("Incomingtransfer");
-                dialog.setResultConverter(buttonType->{
-                    if(buttonType==okButton){
-                        if (Objects.equals(dateText.getText(), "") ||
-                                Objects.equals(amountText.getText(), "") ||
-                                Objects.equals(descriptionText.getText(),"") ||
-                                Objects.equals(incomingInterest_senderText.getText(), "") ||
-                                Objects.equals(outgoingInterest_recipientText.getText(), ""))
-                        {
-                            invalid.setContentText("Ungültige Werte");
-                            Optional<ButtonType> optional = invalid.showAndWait();
-                            if(optional.isPresent() && optional.get()==ButtonType.OK){
-                                text.setText("Es wurde nicht gemacht");
-                            }
-                        }else {
+
+            dialog.setResultConverter(buttonType -> {
+                if (buttonType == okButton) {
+                    if (Objects.equals(dateText.getText(), "") ||
+                            Objects.equals(amountText.getText(), "") ||
+                            Objects.equals(descriptionText.getText(), "") ||
+                            Objects.equals(incomingInterest_senderText.getText(), "") ||
+                            Objects.equals(outgoingInterest_recipientText.getText(), "")) {
+                        invalid.setContentText("Ungültige Werte");
+                        Optional<ButtonType> optional = invalid.showAndWait();
+                        if (optional.isPresent() && optional.get() == ButtonType.OK) {
+                            text.setText("Es wurde nicht gemacht");
+                        }
+                    } else {
+                        if (outgoingInterest_recipientText.getText().equals(name)) { // Incoming Transfer
+                            dialog.setTitle("Incomingtransfer");
                             IncomingTransfer incomingTransfer = new IncomingTransfer(dateText.getText(),
                                     Double.parseDouble(amountText.getText()),
                                     descriptionText.getText(),
@@ -232,7 +233,7 @@ public class AccountController implements Initializable {
                                     outgoingInterest_recipientText.getText());
 
                             try {
-                                privateBank.addTransaction(name,incomingTransfer);
+                                privateBank.addTransaction(name, incomingTransfer);
                                 text.setText("Der Incomingtransfer wurde hinzugefügt");
                             } catch (TransactionAlreadyExistException | AccountDoesNotExistException |
                                      TransactionAttributeException | IncomingException | IOException |
@@ -241,28 +242,8 @@ public class AccountController implements Initializable {
                             }
                             update(privateBank.getTransactions(name));
                             accountName.setText(name + " [" + privateBank.getAccountBalance(name) + "€]");
-                        }
-                    }
-                    return null;
-                });
-            }
-            else if (incomingInterest_senderText.getText().equals(name)) {// Outgoing Transfer
-                dialog.setTitle("Outgoingtransfer");
-
-                dialog.setResultConverter(buttonType -> {
-                    if(buttonType==okButton){
-                        if (Objects.equals(dateText.getText(), "") ||
-                                Objects.equals(amountText.getText(), "") ||
-                                Objects.equals(descriptionText.getText(),"") ||
-                                Objects.equals(incomingInterest_senderText.getText(), "") ||
-                                Objects.equals(outgoingInterest_recipientText.getText(), ""))
-                        {
-                            invalid.setContentText("Ungültige werte");
-                            Optional<ButtonType> optional = invalid.showAndWait();
-                            if (optional.isPresent() && optional.get() == ButtonType.OK) {
-                                text.setText("Es wurde nichts gemacht");
-                            }
-                        }else {
+                        } else if (incomingInterest_senderText.getText().equals(name)) {// Outgoing Transfer
+                            dialog.setTitle("Outgoingtransfer");
                             OutgoingTransfer outgoingTransfer = new OutgoingTransfer(dateText.getText(),
                                     Double.parseDouble(amountText.getText()),
                                     descriptionText.getText(),
@@ -270,7 +251,7 @@ public class AccountController implements Initializable {
                                     outgoingInterest_recipientText.getText());
 
                             try {
-                                privateBank.addTransaction(name,outgoingTransfer);
+                                privateBank.addTransaction(name, outgoingTransfer);
                                 text.setText("Outgoing Transfer hinzugefügt");
                             } catch (TransactionAlreadyExistException | AccountDoesNotExistException |
                                      TransactionAttributeException | IncomingException | OutgoingException |
@@ -281,9 +262,10 @@ public class AccountController implements Initializable {
                             accountName.setText(name + " [" + privateBank.getAccountBalance(name) + "€]");
                         }
                     }
-                    return null;
-                });
-            }
+                }
+                return null;
+            });
         }
     }
 }
+
