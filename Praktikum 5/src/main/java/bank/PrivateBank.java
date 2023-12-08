@@ -382,13 +382,27 @@ public class PrivateBank implements Bank {
      * @throws IOException
      */
     public void readAccounts() throws IOException {
+        Path fileDir = Paths.get(getDirectoryName());
+
+        try {
+            List<Path> files = Files.walk(fileDir).filter(Files::isRegularFile).toList();
+            for (Path file : files) {
+                String filename = file.getFileName().toString();
+                accountsToTransactions.put(filename.replaceAll("(.+?)\\.json", "$1"), new ArrayList<>());
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
         for (String account : accountsToTransactions.keySet()) {
             String fileName = account + ".json";
             Path filePath = Paths.get(directory, fileName);
             if (Files.exists(filePath)) {
                 try (Reader reader = Files.newBufferedReader(filePath)) {
 
-                    Gson gson = new GsonBuilder().registerTypeAdapter(Transaction.class, new TransactionSerializer()).create();
+                    GsonBuilder gsonBuilder = new GsonBuilder();
+                    gsonBuilder.registerTypeHierarchyAdapter(Transaction.class, new TransactionSerializer()).create();
+                    Gson gson = gsonBuilder.create();
                     Type transactionListType = new TypeToken<List<Transaction>>() {
                     }.getType();
                     List<Transaction> transactions = gson.fromJson(reader, transactionListType);
@@ -441,11 +455,12 @@ public class PrivateBank implements Bank {
      * @throws IOException
      */
     public void deleteAccount(String account) throws AccountDoesNotExistException, IOException {
+        readAccounts();
         if (!accountsToTransactions.containsKey(account)) {
             throw new AccountDoesNotExistException();
         } else {
             accountsToTransactions.remove(account);
-            Files.deleteIfExists(Path.of(getDirectoryName() + "/" + account + ".json"));
+            Files.deleteIfExists(Path.of(getDirectoryName() + "\\" + account + ".json"));
         }
     }
 
@@ -453,6 +468,11 @@ public class PrivateBank implements Bank {
      * @return List of Accounts
      */
     public List<String> getAllAccounts() {
+        try {
+            readAccounts();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         return new ArrayList<>(accountsToTransactions.keySet());
     }
 }

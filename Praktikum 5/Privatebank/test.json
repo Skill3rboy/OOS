@@ -1,1 +1,12 @@
-[]
+[
+  {
+    "CLASSNAME": "OutgoingTransfer",
+    "INSTANCE": {
+      "sender": "test",
+      "recipient": "du",
+      "date": "1",
+      "amount": 1.0,
+      "description": "1"
+    }
+  }
+]
