@@ -23,35 +23,88 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.concurrent.atomic.AtomicReference;
 
+/**
+ * Controller for the Account view
+ */
 public class AccountController implements Initializable {
+    /**
+     * A list that allows listeners to track changes when they occur.
+     */
     private final ObservableList<Transaction> transactionsList = FXCollections.observableArrayList();
+    /**
+     * FX text block
+     */
     @FXML
     public Text text;
+    /**
+     * FX Option for Sorting
+     */
     @FXML
     public MenuButton options;
+    /**
+     * FX Back button
+     */
     @FXML
     public Button back;
+    /**
+     * FX Add something button
+     */
     @FXML
     public MenuButton add;
+    /**
+     * FX Root Block
+     */
     @FXML
     public Parent root;
+    /**
+     * FX Sorting
+     */
     @FXML
     public MenuItem ascending;
+    /**
+     * FX Sorting
+     */
     @FXML
     public MenuItem descending;
+    /**
+     * FX sorting
+     */
     @FXML
     public MenuItem positive;
+    /**
+     * FX sorting
+     */
     @FXML
     public MenuItem negative;
+    /**
+     * FX Textblock for accountname
+     */
     @FXML
     public Text accountName;
+    /**
+     * FX Listview block
+     * A ListView displays a horizontal or vertical list of items from which the user may select,
+     * or with which the user may interact. A ListView is able to have its generic type set to represent the type of data in the backing model.
+     * Doing this has the benefit of making various methods in the ListView, as well as the supporting classes (mentioned below), type-safe.
+     * In addition, making use of the generic supports substantially simplifies development of applications making use of ListView,
+     * as all modern IDEs are able to auto-complete far more successfully with the additional type information.
+     */
     @FXML
     public ListView<Transaction> transactionListView;
+    /**
+     * FX Payment add
+     */
     @FXML
     public MenuItem payment;
+    /**
+     * FX tranfer add
+     */
     @FXML
     public MenuItem transfer;
 
+    /**
+     * Private bank instance
+     */
     private PrivateBank privateBank;
 
     /**
@@ -65,7 +118,7 @@ public class AccountController implements Initializable {
      */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        back.setOnMouseClicked(mouseEvent -> {
+        back.setOnMouseClicked(mouseEvent -> { // Back button
             try {
                 root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("Main-view.fxml")));
             } catch (IOException e) {
@@ -79,24 +132,29 @@ public class AccountController implements Initializable {
         });
     }
 
+    /**
+     * @param privateBank
+     * @param name
+     */
     public void setUp(PrivateBank privateBank, String name) {
         //Init
         this.privateBank = privateBank;
         accountName.setText(name + " [" + privateBank.getAccountBalance(name) + "€]");
         update(privateBank.getTransactions(name));
-
         ContextMenu contextMenu = new ContextMenu();
-        //Löschen button
+
+        //Delete button
         MenuItem delete = new MenuItem("Transaktion löschen");
         contextMenu.getItems().addAll(delete);
         transactionListView.setContextMenu(contextMenu);
         // Multi Threading
         AtomicReference<Transaction> selected = new AtomicReference<>();
+        //Select the Item
         transactionListView.setOnMouseClicked(mouseEvent -> {
             selected.set(transactionListView.getSelectionModel().getSelectedItem());
         });
 
-        //löschen funktion
+        //Delete function
         delete.setOnAction(event -> {
             Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
             confirm.setTitle("Transasktion Löschen");
@@ -114,43 +172,59 @@ public class AccountController implements Initializable {
             }
         });
 
-        // Sortierung ascending
+        // Sorting ascending
         ascending.setOnAction(event -> update(privateBank.getTransactionsSorted(name, true)));
 
-        //Sortierung descending
+        //Sorting descending
         descending.setOnAction(event -> update(privateBank.getTransactionsSorted(name, false)));
 
-        //Sortierung positive
+        //Sorting positive
         positive.setOnAction(event -> update(privateBank.getTransactionsByType(name, true)));
-        //Sortierung negative
+        //Sorting negative
         negative.setOnAction(event -> update(privateBank.getTransactionsByType(name, false)));
 
+        //Payment add
         payment.setOnAction(event -> setTransaction(payment, name));
+        //Transfer add
         transfer.setOnAction(event -> setTransaction(transfer, name));
     }
 
+    /**
+     * Updates the List
+     *
+     * @param transactionList
+     */
     private void update(List<Transaction> transactionList) {
         transactionsList.clear();
         transactionsList.addAll(transactionList);
         transactionListView.setItems(transactionsList);
     }
 
+    /**
+     * Adds a Transaction
+     *
+     * @param menuItem
+     * @param name
+     */
     private void setTransaction(MenuItem menuItem, String name) {
         Dialog<Transaction> dialog = new Dialog<>();
         GridPane gridPane = new GridPane();
 
+        // Label is a non-editable text control.
         Label date = new Label("Datum: ");
         Label amount = new Label("Betrag: ");
         Label description = new Label("Beschreibung: ");
         Label incomingInterest_sender = new Label();
         Label outgoingInterest_recipient = new Label();
 
+        //Text input component that allows a user to enter a single line of unformatted text.
         TextField dateText = new TextField();
         TextField amountText = new TextField();
         TextField descriptionText = new TextField();
         TextField incomingInterest_senderText = new TextField();
         TextField outgoingInterest_recipientText = new TextField();
 
+        //Grid just like HTML/CSS
         gridPane.add(date, 1, 1);
         gridPane.add(dateText, 2, 1);
         gridPane.add(description, 1, 2);
@@ -162,6 +236,7 @@ public class AccountController implements Initializable {
         gridPane.add(outgoingInterest_recipient, 1, 5);
         gridPane.add(outgoingInterest_recipientText, 2, 5);
 
+
         ButtonType okButton = new ButtonType("Hinzufügen", ButtonBar.ButtonData.OK_DONE);
         dialog.getDialogPane().setContent(gridPane);
         dialog.setResizable(true);
@@ -169,14 +244,14 @@ public class AccountController implements Initializable {
 
         Alert invalid = new Alert(Alert.AlertType.ERROR);
         dialog.show();
-        //Payment fall
+        //Payment Case
         if (Objects.equals(menuItem.getId(), "payment")) {
             dialog.setTitle("Payment");
             incomingInterest_sender.setText("Incoming interest: ");
             outgoingInterest_recipient.setText("Outgoing interest: ");
             dialog.setResultConverter(buttonType -> {
                 if (buttonType == okButton) {
-                    if (Objects.equals(dateText.getText(), "") ||
+                    if (Objects.equals(dateText.getText(), "") || // Check if not empty
                             Objects.equals(amountText.getText(), "") ||
                             Objects.equals(descriptionText.getText(), "") ||
                             Objects.equals(incomingInterest_senderText.getText(), "") ||
@@ -207,13 +282,13 @@ public class AccountController implements Initializable {
                 }
                 return null;
             });
-        } else if (Objects.equals(menuItem.getId(), "transfer")) { // Transfer
+        } else if (Objects.equals(menuItem.getId(), "transfer")) { // Transfer case
             incomingInterest_sender.setText("Sender: ");
             outgoingInterest_recipient.setText("Empfänger: ");
 
             dialog.setResultConverter(buttonType -> {
                 if (buttonType == okButton) {
-                    if (Objects.equals(dateText.getText(), "") ||
+                    if (Objects.equals(dateText.getText(), "") ||// Check if not empty
                             Objects.equals(amountText.getText(), "") ||
                             Objects.equals(descriptionText.getText(), "") ||
                             Objects.equals(incomingInterest_senderText.getText(), "") ||
@@ -224,14 +299,13 @@ public class AccountController implements Initializable {
                             text.setText("Es wurde nicht gemacht");
                         }
                     } else {
-                        if (outgoingInterest_recipientText.getText().equals(name)) { // Incoming Transfer
+                        if (outgoingInterest_recipientText.getText().equals(name)) { // Incoming Transfer case
                             dialog.setTitle("Incomingtransfer");
                             IncomingTransfer incomingTransfer = new IncomingTransfer(dateText.getText(),
                                     Double.parseDouble(amountText.getText()),
                                     descriptionText.getText(),
                                     incomingInterest_senderText.getText(),
                                     outgoingInterest_recipientText.getText());
-
                             try {
                                 privateBank.addTransaction(name, incomingTransfer);
                                 text.setText("Der Incomingtransfer wurde hinzugefügt");
@@ -242,14 +316,13 @@ public class AccountController implements Initializable {
                             }
                             update(privateBank.getTransactions(name));
                             accountName.setText(name + " [" + privateBank.getAccountBalance(name) + "€]");
-                        } else if (incomingInterest_senderText.getText().equals(name)) {// Outgoing Transfer
+                        } else if (incomingInterest_senderText.getText().equals(name)) {// Outgoing Transfer case
                             dialog.setTitle("Outgoingtransfer");
                             OutgoingTransfer outgoingTransfer = new OutgoingTransfer(dateText.getText(),
                                     Double.parseDouble(amountText.getText()),
                                     descriptionText.getText(),
                                     incomingInterest_senderText.getText(),
                                     outgoingInterest_recipientText.getText());
-
                             try {
                                 privateBank.addTransaction(name, outgoingTransfer);
                                 text.setText("Outgoing Transfer hinzugefügt");

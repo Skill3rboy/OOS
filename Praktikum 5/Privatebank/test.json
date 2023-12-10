@@ -8,5 +8,25 @@
       "amount": 1.0,
       "description": "1"
     }
+  },
+  {
+    "CLASSNAME": "IncomingTransfer",
+    "INSTANCE": {
+      "sender": "ich",
+      "recipient": "test",
+      "date": "1",
+      "amount": 15.0,
+      "description": "Test"
+    }
+  },
+  {
+    "CLASSNAME": "Payment",
+    "INSTANCE": {
+      "incomingInterest": 0.2,
+      "outgoingInterest": 0.4,
+      "date": "1",
+      "amount": 1.0,
+      "description": "test"
+    }
   }
 ]
